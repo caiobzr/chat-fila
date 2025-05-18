@@ -1,22 +1,32 @@
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
-import { AppController } from './app/app.controller';
+import { Cliente } from './cliente/cliente.entity';
+import { Mensagem } from './mensagem/mensagem.entity';
+import { ClienteService } from './cliente/cliente.service';
+import { MensagemService } from './mensagem/mensagem.service';
+import { ClienteController } from './cliente/cliente.controller';
+import { MensagemController } from './mensagem/mensagem.controller';
+import { ClienteIdMiddleware } from './middleware/cliente-id.middleware';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: process.env.DB_HOST || 'localhost',
-      port: +(process.env.DB_PORT || 3306),
-      username: process.env.DB_USERNAME || 'root',
-      password: process.env.DB_PASSWORD || 'admin',
-      database: process.env.DB_NAME || 'chatfila',
-      autoLoadEntities: true,
+      host: 'localhost',
+      port: 3306,
+      username: 'root',
+      password: 'senha',
+      database: 'chat',
+      entities: [Cliente, Mensagem],
       synchronize: true,
     }),
+    TypeOrmModule.forFeature([Cliente, Mensagem]),
   ],
-  controllers: [AppController],
+  controllers: [ClienteController, MensagemController],
+  providers: [ClienteService, MensagemService],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(ClienteIdMiddleware).forRoutes('mensagens');
+  }
+}
