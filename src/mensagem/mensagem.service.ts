@@ -17,49 +17,37 @@ export class MensagemService implements OnModuleInit {
     const podeEnviar = await this.clienteService.decrementSaldo(
       mensagem.clienteId,
     );
+
     if (!podeEnviar) return { erro: 'Saldo insuficiente' };
 
     const novaMensagem = this.repo.create(mensagem);
-    novaMensagem.status = 'ENVIADA';
-    await this.repo.save(novaMensagem);
+    novaMensagem.status = 'PENDENTE';
 
-    this.fila.push(novaMensagem); // Adiciona à fila
+    await this.repo.save(novaMensagem);
+    this.fila.push(novaMensagem); // Adiciona na fila FIFO
 
     return novaMensagem;
-  }
-
-  async listar() {
-    return this.repo.find({ where: { status: 'ENVIADA' } });
   }
 
   async listarProcessadas() {
     return this.repo.find({ where: { status: 'PROCESSADA' } });
   }
 
-  async processarMensagem(mensagem: Mensagem) {
-    // Simula tempo de envio da mensagem
-    await new Promise((res) => setTimeout(res, 500));
-    mensagem.status = 'PROCESSADA';
-    await this.repo.save(mensagem);
-  }
-
-  async processarFila() {
-    if (this.fila.length === 0) return;
-
-    // Ordena fila por prioridade (alta > média > baixa)
-    this.fila.sort((a, b) => {
-      const prioridades = { alta: 3, media: 2, baixa: 1 };
-      return prioridades[b.prioridade] - prioridades[a.prioridade];
-    });
-
-    const mensagem = this.fila.shift();
-    if (mensagem) {
-      await this.processarMensagem(mensagem);
-    }
+  async listarPendentes() {
+    return this.repo.find({ where: { status: 'PENDENTE' } });
   }
 
   onModuleInit() {
-    // Inicia o processamento da fila a cada 1 segundo
-    setInterval(() => this.processarFila(), 1000);
+    setInterval(() => this.processarFila(), 2000); // Executa a cada 2s
+  }
+
+  private async processarFila() {
+    if (this.fila.length === 0) return;
+
+    const mensagem = this.fila.shift(); // FIFO
+    mensagem.status = 'PROCESSADA';
+    await this.repo.save(mensagem);
+
+    console.log(`Mensagem ${mensagem.id} processada.`);
   }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import { MensagemService } from './mensagem.service';
 import { Mensagem } from './mensagem.entity';
 
@@ -11,13 +11,13 @@ export class MensagemController {
     return this.mensagemService.enviar(mensagem);
   }
 
-  @Get()
-  async listarEnviadas() {
-    return this.mensagemService.listar();
-  }
-
   @Get('processadas')
   async listarProcessadas() {
     return this.mensagemService.listarProcessadas();
+  }
+
+  @Get('pendentes')
+  async listarPendentes() {
+    return this.mensagemService.listarPendentes();
   }
 }
