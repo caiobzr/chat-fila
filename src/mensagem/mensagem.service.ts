@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Mensagem } from './mensagem.entity';
 import { ClienteService } from '../cliente/cliente.service';
+import { ArquivoService } from './arquivo.service';
 
 @Injectable()
 export class MensagemService implements OnModuleInit {
@@ -11,25 +12,22 @@ export class MensagemService implements OnModuleInit {
   constructor(
     @InjectRepository(Mensagem) private repo: Repository<Mensagem>,
     private clienteService: ClienteService,
+    private arquivoService: ArquivoService,
   ) {}
-
-  async onModuleInit() {
-    // Executa a cada 5 segundos
-    setInterval(() => this.processarMensagens(), 5000);
-  }
 
   async enviar(mensagem: Partial<Mensagem>) {
     const podeEnviar = await this.clienteService.decrementSaldo(
       mensagem.clienteId,
     );
-
     if (!podeEnviar) return { erro: 'Saldo insuficiente' };
 
     const novaMensagem = this.repo.create(mensagem);
     novaMensagem.status = 'PENDENTE';
     await this.repo.save(novaMensagem);
 
-    this.fila.push(novaMensagem); // Adiciona à fila FIFO
+    this.arquivoService.salvarMensagem(novaMensagem.clienteId, novaMensagem);
+
+    this.fila.push(novaMensagem);
 
     return novaMensagem;
   }
