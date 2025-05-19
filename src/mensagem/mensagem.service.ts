@@ -13,6 +13,11 @@ export class MensagemService implements OnModuleInit {
     private clienteService: ClienteService,
   ) {}
 
+  async onModuleInit() {
+    // Executa a cada 5 segundos
+    setInterval(() => this.processarMensagens(), 5000);
+  }
+
   async enviar(mensagem: Partial<Mensagem>) {
     const podeEnviar = await this.clienteService.decrementSaldo(
       mensagem.clienteId,
@@ -22,9 +27,9 @@ export class MensagemService implements OnModuleInit {
 
     const novaMensagem = this.repo.create(mensagem);
     novaMensagem.status = 'PENDENTE';
-
     await this.repo.save(novaMensagem);
-    this.fila.push(novaMensagem); // Adiciona na fila FIFO
+
+    this.fila.push(novaMensagem); // Adiciona à fila FIFO
 
     return novaMensagem;
   }
@@ -37,17 +42,13 @@ export class MensagemService implements OnModuleInit {
     return this.repo.find({ where: { status: 'PENDENTE' } });
   }
 
-  onModuleInit() {
-    setInterval(() => this.processarFila(), 2000); // Executa a cada 2s
-  }
-
-  private async processarFila() {
+  async processarMensagens() {
     if (this.fila.length === 0) return;
 
-    const mensagem = this.fila.shift(); // FIFO
-    mensagem.status = 'PROCESSADA';
-    await this.repo.save(mensagem);
+    const msg = this.fila.shift();
+    msg.status = 'PROCESSADA';
+    await this.repo.save(msg);
 
-    console.log(`Mensagem ${mensagem.id} processada.`);
+    console.log(`Mensagem ${msg.id} processada.`);
   }
 }
