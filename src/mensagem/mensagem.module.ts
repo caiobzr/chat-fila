@@ -3,12 +3,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Mensagem } from './mensagem.entity';
 import { MensagemService } from './mensagem.service';
 import { MensagemController } from './mensagem.controller';
-import { ClienteModule } from '../cliente/cliente.module';
-import { ArquivoService } from './arquivo.service';
+import { Cliente } from '../cliente/cliente.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Mensagem]), ClienteModule],
-  providers: [MensagemService, ArquivoService],
+  imports: [TypeOrmModule.forFeature([Mensagem, Cliente])],
+  providers: [MensagemService],
   controllers: [MensagemController],
+  exports: [MensagemService],
 })
 export class MensagemModule {}

@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Mensagem } from '../mensagem/mensagem.entity';
 
 @Entity()
 export class Cliente {
@@ -9,11 +10,23 @@ export class Cliente {
   nome: string;
 
   @Column({ unique: true })
-  cpf_cnpj: string;
+  cpfCnpj: string;
 
-  @Column()
-  plano: 'BASICO' | 'PREMIUM';
+  @Column({ type: 'varchar', length: 255 })
+  email: string;
 
-  @Column({ default: 0 })
+  @Column({ type: 'varchar', length: 255 })
+  senha: string;
+
+  @Column({ default: true })
+  ativo: boolean;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  dataCriacao: Date;
+
+  @Column({ default: 100 })
   saldo: number;
+
+  @OneToMany(() => Mensagem, mensagem => mensagem.cliente)
+  mensagens: Mensagem[];
 }

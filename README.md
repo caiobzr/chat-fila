@@ -1,138 +1,185 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Sistema de Filas para Chat
 
-<p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
+Sistema backend para gerenciamento de mensagens de chat com sistema de filas e priorização.
 
-<p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-<a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-<a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
+## Tecnologias Utilizadas
 
----
+- Node.js com NestJS
+- MySQL
+- Docker
+- JWT para autenticação
+- Cache com Cache Manager
+- Swagger para documentação da API
 
-## Descrição
+## Requisitos
 
-Este projeto foi desenvolvido como parte de um **teste técnico para uma vaga de desenvolvedor backend** com foco em NestJS, Docker e MySQL.
-
-Ele simula um sistema de gestão de **fretes**, incluindo:
-
-- Cadastro de empresas
-- Criação e controle de fretes realizados
-- Relatórios mensais com detalhes por empresa
-- Acompanhamento de valores e status de pagamento
-- Cadastro de usuários com controle de permissões
-- Acesso administrativo e controle de senhas
-
----
-
-## Funcionalidades
-
-- 🏢 Cadastro e gerenciamento de empresas
-- 🚚 Cadastro e controle de fretes por empresa
-- 📊 Relatórios detalhados mensais por empresa
-- 💰 Acompanhamento de valores de frete e status de pagamento
-- 🔐 Sistema de autenticação e controle de usuários
-- 👨‍💻 Acesso administrativo com todas as permissões
-
----
-
-## Tecnologias utilizadas
-
-- [NestJS](https://nestjs.com/)
-- [MySQL](https://www.mysql.com/)
-- [Docker](https://www.docker.com/)
-- [Prisma ORM](https://www.prisma.io/)
-- [JWT](https://jwt.io/)
-- [bcrypt](https://www.npmjs.com/package/bcrypt)
-
----
+- Node.js 16+
+- Docker e Docker Compose
+- MySQL 8+
 
 ## Instalação
 
+1. Clone o repositório:
 ```bash
-# Instale as dependências
-$ npm install
+git clone [url-do-repositorio]
+cd chat-fila
 ```
 
----
-
-## Executando o projeto com Docker
-
+2. Instale as dependências:
 ```bash
-# Suba os containers
-$ docker-compose up -d
-
-# Acesse o container da aplicação
-$ docker exec -it nome_do_container bash
-
-# Rode as migrations
-$ npx prisma migrate dev
+npm install
 ```
 
----
-
-## Executando sem Docker
-
+3. Configure as variáveis de ambiente:
 ```bash
-# Execute em modo desenvolvimento
-$ npm run start:dev
+cp .env.example .env
 ```
+Edite o arquivo .env com suas configurações.
 
-Certifique-se de ter o MySQL rodando localmente e o `.env` configurado corretamente.
-
----
-
-## Variáveis de ambiente
-
-Crie um arquivo `.env` na raiz do projeto com o seguinte conteúdo:
-
-```
-DATABASE_URL="mysql://usuario:senha@localhost:3306/nome_do_banco"
-JWT_SECRET="sua_chave_secreta"
-```
-
----
-
-## Testes
-
+4. Inicie o banco de dados com Docker:
 ```bash
-# Testes unitários
-$ npm run test
-
-# Testes end-to-end
-$ npm run test:e2e
-
-# Cobertura de testes
-$ npm run test:cov
+docker-compose up -d
 ```
 
----
+5. Execute as migrações (ou crie as colunas manualmente, se necessário):
+```bash
+npm run typeorm migration:run
+```
 
-## Endpoints principais
+6. Inicie o servidor:
+```bash
+npm run start:dev
+```
 
-- `POST /auth/login` - Autenticação de usuário
-- `POST /users` - Cadastro de usuário
-- `POST /companies` - Cadastro de empresa
-- `POST /freights` - Cadastro de frete
-- `GET /reports/monthly` - Relatório mensal
+## Documentação da API
 
----
+A documentação da API está disponível em:
+```
+http://localhost:3000/api
+```
+
+## Estrutura do Projeto
+
+```
+src/
+├── auth/                 # Autenticação e autorização
+├── cliente/             # Gerenciamento de clientes
+├── mensagem/            # Gerenciamento de mensagens
+├── middleware/          # Middlewares da aplicação
+├── status/             # WebSocket para status em tempo real
+└── app.module.ts       # Módulo principal
+```
+
+## Funcionalidades
+
+### Autenticação
+- Login com email e senha
+- JWT para autenticação
+- Proteção de rotas
+
+### Sistema de Filas
+- Fila com priorização (Normal/Urgente)
+- Processamento assíncrono
+- Balanceamento de prioridades
+- Tratamento de falhas e retry
+
+### Cache
+- Cache de estatísticas
+- Cache de mensagens recentes
+- Invalidação automática
+
+### Monitoramento
+- Logs estruturados
+- Métricas de performance
+- Status em tempo real via WebSocket
+
+## Endpoints Principais
+
+### Autenticação
+- POST /auth/login - Login com email e senha
+
+**Exemplo:**
+```json
+{
+  "email": "teste@teste.com",
+  "senha": "123456"
+}
+```
+**Resposta:**
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6..."
+}
+```
+
+### Clientes
+- POST /cliente - Criar cliente
+- GET /cliente/:id - Obter cliente
+- PUT /cliente/:id - Atualizar cliente
+
+**Exemplo de criação:**
+```json
+{
+  "nome": "Teste",
+  "email": "teste@teste.com",
+  "senha": "123456",
+  "cpfCnpj": "12345678900"
+}
+```
+
+### Mensagens
+- POST /mensagem - Enviar mensagem
+- GET /mensagem/pendentes - Listar mensagens pendentes
+- GET /mensagem/processadas - Listar mensagens processadas
+- GET /mensagem/estatisticas - Estatísticas da fila
+
+**Headers obrigatórios para rotas protegidas:**
+- `Authorization: Bearer SEU_TOKEN_AQUI`
+- `x-cpf-cnpj: 12345678900`
+
+**Exemplo de envio de mensagem:**
+```json
+{
+  "conteudo": "Teste de mensagem",
+  "prioridade": 1
+}
+```
+
+## Como testar rapidamente
+
+1. **Criar cliente:**
+```bash
+curl -X POST http://localhost:3000/cliente -H "Content-Type: application/json" -d '{"nome":"Teste","email":"teste@teste.com","senha":"123456","cpfCnpj":"12345678900"}'
+```
+
+2. **Login:**
+```bash
+curl -X POST http://localhost:3000/auth/login -H "Content-Type: application/json" -d '{"email":"teste@teste.com","senha":"123456"}'
+```
+
+3. **Enviar mensagem:**
+```bash
+curl -X POST http://localhost:3000/mensagem \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer SEU_TOKEN_AQUI" \
+  -H "x-cpf-cnpj: 12345678900" \
+  -d '{"conteudo":"Teste de mensagem","prioridade":1}'
+```
+
+## Observações importantes
+- Sempre envie o header `x-cpf-cnpj` nas rotas protegidas de mensagem.
+- Use o token JWT retornado no login para acessar as rotas protegidas.
+- O sistema de filas e processamento é assíncrono e simula etapas de entrega da mensagem.
+- O projeto está pronto para rodar com Docker e `.env`.
+
+## Contribuição
+
+1. Fork o projeto
+2. Crie sua branch de feature (`git checkout -b feature/nova-feature`)
+3. Commit suas mudanças (`git commit -m 'Adiciona nova feature'`)
+4. Push para a branch (`git push origin feature/nova-feature`)
+5. Abra um Pull Request
 
 ## Licença
 
-Nest é [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
-
----
-
-## Autor do projeto
-
-Desenvolvido como parte de teste técnico por Caio Belizario.
+Este projeto está sob a licença MIT.
